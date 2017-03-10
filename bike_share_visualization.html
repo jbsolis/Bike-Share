@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+
+<select id="seasons">
+  <option value="winter">Winter</option>
+  <option value="spring">Spring</option>
+  <option value="summer">Summer</option>
+  <option value="fall">Fall</option>
+</select>
+
+<head>
+  <meta charset="utf-8">
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="http://dimplejs.org/dist/dimple.v2.0.0.min.js"></script>
+    <style>   
+           #seasons {  
+           position: fixed;
+           top: 30px;
+           left: 100px;
+            }   
+    </style>
+    <script type="text/javascript">
+      function draw(data) {
+          "use strict";
+          var margin = 50,
+              width = 1200 - margin,
+              height = 600 - margin;
+          
+          var svg = d3.select("body")
+            .append("svg")
+              .attr("width", width + margin)
+              .attr("height", height + margin)
+            .append('g')
+                .attr('class','chart');
+
+      /*
+        Dimple.js Chart construction code
+      */
+          data = dimple.filterData(data, "season", ["Winter", "Spring", "Summer", "Fall"]);
+
+          var myChart = new dimple.chart(svg, data);
+          myChart.data =  dimple.filterData(data, "season", "Winter");
+
+          var x = myChart.addCategoryAxis("x", "hour");
+          x.addOrderRule(["12:00 AM","1:00 AM","2:00 AM","3:00 AM","4:00 AM",
+                          "5:00 AM","6:00 AM","7:00 AM","8:00 AM","9:00 AM",
+                          "10:00 AM","11:00 AM","12:00 PM","1:00 PM","2:00 PM",
+                          "3:00 PM","4:00 PM","5:00 PM","6:00 PM","7:00 PM",
+                          "8:00 PM","9:00 PM","10:00 PM","11:00 PM"]);
+          x.title = "Hour in the Day";
+          var y = myChart.addMeasureAxis("y", "count");
+          y.overrideMin = 0;
+          y.overrideMax = 500;
+          y.title = "Average Renters";
+          var mySeries = myChart.addSeries('rider', dimple.plot.line);
+          myChart.addLegend(550, 25, 510, 20, "right");
+          myChart.draw();
+        
+          d3.select("#seasons").on("change", function() {
+            var seasonstext=document.getElementById("seasons");
+            myChart.data = dimple.filterData(data, "season", seasonstext[seasonstext.selectedIndex].text);
+            myChart.draw();
+          });
+        };
+      </script>
+  </head>
+<body>
+  <script type="text/javascript">
+  /*
+    Use D3 (not dimple.js) to load the TSV file
+    and pass the contents of it to the draw function
+    */
+  d3.csv("riders_by_hour_season.csv", draw);
+
+  </script>
+</body>
+</html>
